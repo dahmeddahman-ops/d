@@ -1,1 +1,199 @@
-# d
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENSAM Meknès | Orientation</title>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Alpine (IMPORTANT : AVANT script) -->
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+[x-cloak]{display:none!important}
+
+.hero-gradient {
+background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+}
+
+.card-transition {
+transition: 0.4s;
+}
+.card-transition:hover {
+transform: translateY(-10px);
+}
+
+/* animation fix */
+@keyframes fadeInUp {
+from {opacity:0; transform:translateY(20px);}
+to {opacity:1; transform:translateY(0);}
+}
+.animate-fade-in-up {
+animation: fadeInUp 0.8s ease;
+}
+</style>
+
+<script>
+document.addEventListener('alpine:init', () => {
+Alpine.data('orientationApp', () => ({
+filter:'all',
+search:'',
+showModal:false,
+selectedFiliere:null,
+
+categories:['mécanique','électrique','informatique','industriel','énergétique'],
+
+filieres:[
+{
+code:'GC24',
+nom:'Génie Civil',
+secteur:'mécanique',
+desc:'Conception, construction et gestion des infrastructures.',
+fullDesc:'Formation complète en génie civil moderne.',
+tags:['BTP','Ouvrages'],
+s7:['Structures','Hydraulique'],
+s8:['Parasismique','Chantiers']
+},
+{
+code:'GI',
+nom:'Ingénierie Logicielle',
+secteur:'informatique',
+desc:'Développement logiciel avancé.',
+fullDesc:'IA, Cloud et systèmes modernes.',
+tags:['IA','Cloud'],
+s7:['ML','Bases de données'],
+s8:['Deep Learning','Cybersécurité']
+}
+],
+
+get filteredFilieres(){
+return this.filieres.filter(f=>{
+const matchSearch =
+f.nom.toLowerCase().includes(this.search.toLowerCase()) ||
+f.code.toLowerCase().includes(this.search.toLowerCase()) ||
+f.tags.some(t => t.toLowerCase().includes(this.search.toLowerCase()));
+
+const matchFilter = this.filter==='all' || f.secteur===this.filter;
+
+return matchSearch && matchFilter;
+});
+}
+}))
+})
+</script>
+
+</head>
+
+<body x-data="orientationApp" class="bg-gray-50">
+
+<!-- NAVBAR -->
+<nav class="bg-white shadow p-4 flex justify-between">
+<h1 class="font-bold text-blue-900">ENSAM Meknès</h1>
+</nav>
+
+<!-- HERO -->
+<section class="hero-gradient text-white p-16 text-center">
+<h2 class="text-5xl font-bold animate-fade-in-up">
+Choisissez votre filière
+</h2>
+<p class="mt-4 text-blue-200">
+Explorez les spécialités disponibles
+</p>
+</section>
+
+<!-- SEARCH -->
+<div class="p-6 text-center">
+<input x-model="search" placeholder="Rechercher..."
+class="border p-3 rounded w-72">
+</div>
+
+<!-- FILTER -->
+<div class="flex justify-center gap-2 mb-6 flex-wrap">
+<button @click="filter='all'" class="bg-blue-900 text-white px-4 py-2 rounded">Tous</button>
+
+<template x-for="cat in categories">
+<button @click="filter=cat"
+class="border px-4 py-2 rounded"
+x-text="cat"></button>
+</template>
+</div>
+
+<!-- CARDS -->
+<div class="grid md:grid-cols-3 gap-6 p-6">
+
+<template x-for="f in filteredFilieres" :key="f.code">
+<div class="bg-white p-6 rounded shadow card-transition">
+
+<h3 class="text-xl font-bold mb-2" x-text="f.nom"></h3>
+
+<p class="text-gray-500 mb-4" x-text="f.desc"></p>
+
+<div class="mb-4">
+<template x-for="tag in f.tags">
+<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 mr-1 rounded" x-text="tag"></span>
+</template>
+</div>
+
+<button @click="selectedFiliere=f; showModal=true"
+class="bg-blue-900 text-white px-4 py-2 rounded w-full">
+Voir détails
+</button>
+
+</div>
+</template>
+
+</div>
+
+<!-- EMPTY -->
+<div x-show="filteredFilieres.length===0" class="text-center p-10 text-gray-400">
+Aucune filière trouvée
+</div>
+
+<!-- MODAL -->
+<div x-show="showModal" x-cloak
+class="fixed inset-0 bg-black/70 flex items-center justify-center">
+
+<div class="bg-white p-8 rounded w-[90%] max-w-lg">
+
+<h2 class="text-2xl font-bold mb-4"
+x-text="selectedFiliere?.nom"></h2>
+
+<p class="mb-4" x-text="selectedFiliere?.fullDesc"></p>
+
+<div class="grid grid-cols-2 gap-4">
+
+<div>
+<h4 class="font-bold mb-2">Semestre 7</h4>
+<ul>
+<template x-for="m in selectedFiliere?.s7">
+<li class="text-sm text-gray-600">• <span x-text="m"></span></li>
+</template>
+</ul>
+</div>
+
+<div>
+<h4 class="font-bold mb-2">Semestre 8</h4>
+<ul>
+<template x-for="m in selectedFiliere?.s8">
+<li class="text-sm text-gray-600">• <span x-text="m"></span></li>
+</template>
+</ul>
+</div>
+
+</div>
+
+<button @click="showModal=false"
+class="mt-6 bg-red-500 text-white px-4 py-2 rounded w-full">
+Fermer
+</button>
+
+</div>
+</div>
+
+</body>
+</html>
